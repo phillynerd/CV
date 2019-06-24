@@ -1,0 +1,108 @@
+---
+name: Jessica Streeter
+position: "Data Scientist"
+address: "1433 S 18th St, Philadelphia PA 19146"
+phone: 631 678 7222
+www: phillynerd.netlify.com
+email: "jstreeter.rutgers@gmail.com"
+twitter: phillynerd
+github: phillynerd
+linkedin: jessica-streeter-9053a630
+headcolor: #f4bf42
+date: "`r format(Sys.time(), '%B %Y')`"
+aboutme: "Jessica is a driven, self-motivated data scientist who is passionate about issues of mental health, social justice, and socioeconomic disparities in health care. She was trained as a medical sociologist with an emphasis on mental illness, quantitative methodologies, and research methods.  She has worked in the mental health field in a variety of different capacities, including direct care and academia, since 2005."
+output: vitae::awesomecv
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+library(vitae)
+library(googlesheets)
+library(tidyverse)
+library(rorcid)
+#education
+CVedu_key <- extract_key_from_url("https://docs.google.com/spreadsheets/d/1M3y33nzpoTKt7J_GesfTa2EE8FcRPJwGZZeBUBj1qqc/edit#gid=0")
+GS_CVedu <- gs_key(CVedu_key)
+
+CVedu<- GS_CVedu %>% 
+  gs_read()
+
+#jobs
+CVjob_key <- extract_key_from_url("https://docs.google.com/spreadsheets/d/1XIKWwsRaQqRCVEzeIWFMCpin2I0Znyn1-3NLcjagS8o/edit#gid=0")
+GS_CVjob <- gs_key(CVjob_key)
+
+CVjob<- GS_CVjob %>% 
+  gs_read("Jobs")
+
+#pubs and pres
+me <- as.orcid(x = "0000-0002-0576-083X")
+orc_CVpub <- works(me)
+```
+
+# Skills
+## Programs/Languages
+
+* R, SQL, Rstudio, Excel, SPSS, PowerBI (limited)
+
+## Methodologies
+
+* cox regressions, linear/logistic regressions, clustering (k-means, knn), random forest
+
+## Teaching
+
+* 10+ years teaching undergraduate courses like research methods, race relations, and sociology of mental illness
+* Awarded Teaching Excellence Honor Role (Rutgers, each semester); Harry C. Bredemeier Award for Career Teaching Excellence (Rutgers; 2011); and SAGE Teaching Innovations and Professional Development Award (2012)
+
+## Leadership
+
+* Team lead for Code4PA hackathon targetting the opioid epidemic in PA
+* Created organization-wide policies around data review and documentation
+* Regularly asked to do trainings and present technical materials for diverse audiences (technical, clinical, providers, and city government)
+
+# Experience
+
+```{r jobs}
+CVjob %>% 
+  arrange(Workplace, desc(as.numeric(Year_Finish))) %>% 
+  detailed_entries (what = Title,
+                   when = paste0(Startdate, "-", Enddate),
+                   with = Workplace,
+                   why = Details,
+                   where = Where) 
+  
+```
+
+\newpage
+# Education
+```{r edu}
+CVedu %>% 
+brief_entries(what = ifelse(is.na(Degree), Course_of_Study,
+                     paste0(Course_of_Study, ": ", Degree)),
+              when = Date_Complete,
+              with = School) %>% 
+  arrange(desc(when))
+
+
+```
+
+
+# Publications & Presentations
+*Selected examples, orcID: [0000-0002-0576-083X](https://orcid.org/0000-0002-0576-083X)*
+```{r pubs}
+orc_CVpub %>% 
+  arrange(desc(`publication-date.year.value`)) %>%
+   mutate(type_clean = ifelse(type == "book-chapter", "Peer Reviewed Book Chapter",
+          ifelse(type == "journal-article", "Journal Article",
+          ifelse(type == "magazine-article", "Magazine",
+          ifelse(type %in% c("conference-abstract","conference-paper"), "Conference",
+          ifelse(type == "book", "Book", NA)))))) %>% 
+  filter(type_clean != "Magazine") %>% 
+  detailed_entries(
+      with = title.title.value,
+      when = `publication-date.year.value`,
+      what = paste0(`journal-title.value`, ": ", type_clean)
+  )
+
+```
+
+
